@@ -1,0 +1,59 @@
+import pyglet
+from pyglet import shapes
+import random
+import colorsys
+
+window = pyglet.window.Window(800, 600)
+
+data_size = 30
+bar_width = window.width // data_size
+bar_heights = [random.randint(50, 400) for _ in range(data_size)]
+
+current_index = 0
+sorted_index = data_size
+
+bar_gap = 2
+
+def bubble_sort(arr):
+    if len(arr) > 1:
+        for i in range(len(arr) - 1):
+            for j in range(0, len(arr) - i - 1):
+                if arr[j] > arr[j + 1]:
+                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
+def bubble_sort_step():
+    global current_index, sorted_index
+    if current_index < sorted_index - 1:
+        if bar_heights[current_index] > bar_heights[current_index + 1]:
+            bar_heights[current_index], bar_heights[current_index + 1] = (
+                bar_heights[current_index + 1],
+                bar_heights[current_index],
+            )
+        current_index += 1
+    else:
+        current_index = 0
+        sorted_index -= 1
+
+def update(dt):
+    bubble_sort_step()
+
+@window.event
+def on_draw():
+    window.clear()
+
+    for i, height in enumerate(bar_heights):
+        hue = 0.85 - (i / float(data_size)) * 0.2  # ไล่สีจากชมพูอ่อนไปสู่ชมพูเข้ม
+        saturation = 0.6
+        value = 0.8
+        color = tuple(int(c * 255) for c in colorsys.hsv_to_rgb(hue, saturation, value))
+        
+        shapes.Rectangle(
+            i * (bar_width + bar_gap),
+            0,
+            bar_width,
+            height,
+            color=color,
+        ).draw()
+
+pyglet.clock.schedule_interval(update, 1 / 60.0)
+pyglet.app.run()
